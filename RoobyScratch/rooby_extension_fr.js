@@ -1,3 +1,6 @@
+// http://scratchx.org/?url=http://jeulindev.github.io/RoobyScratch/RoobyStartProject.sbx
+// http://scratchx.org/?url=http://jeulindev.github.io/RoobyScratch/rooby_extension_fr.js
+
 //https://www.mozilla.org/fr/plugincheck/
 //chrome://plugins/
 
@@ -19,38 +22,6 @@ motor1_rot_pwmmax 		= motor2_rot_pwmmax 	= motor_rot_pwmmax 		=  10;
 
 var myRooby;
 var roobyInput = [0,0,0] ;
-/*
-function usbManager()
-{
-
-	this.empty = true;
-	
-	this.request = function(device, command, callback)
-	{
-		//console.log('request:'+this.empty);
-		if (!this.empty)
-		{
-			window.setTimeout(function() {// rooby.request(device, command, callback);
-			}, 100, device, command, callback);
-		}
-		var result = undefined;
-		if (command.type == 'read')
-		{
-			result = device.read();
-		} else if (command.type == 'write') {
-			console.log("write :"+command.sel[0].toString(16)+", "+command.sel[1].toString(16)+", "+command.sel[2].toString(16)+", "+command.sel[3].toString(16)+", "+command.sel[4].toString(16)+", "+command.sel[5].toString(16)+", "+command.sel[6].toString(16)+", "+command.sel[7].toString(16)+".");
-			device.write(command.sel);
-		}
-		
-		this.empty = false;
-		window.setTimeout(function() {
-			myRooby.empty 	= true;
-			//console.log('End Waiting');
-		}, 100, this);
-		
-		callback(result);
-	}
-}*/
 
 
 
@@ -70,14 +41,33 @@ function usbManager(device)
 	this.currentCommand 	= [0x00, 0x37, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
 	this.currentCallback 	= undefined;
 	this.timeout			= 0; 		
-	this.forcestop			= 0; 		
-	this.request = function(device, command, callback)
+	this.forcestop			= 0; 	
+
+
+	this.readDevice = function(device)
 	{
 		if ((!device) || (!oUSB.enabled))
 		{
 			console.log('!! device not connected !!');
 		} else {
-			console.log('request: '+oUSB.currentCommand[0]+", "+
+			var result = undefined;
+			//--
+			result 	 	= device.read( function() {});
+			var s 		= new Uint8Array(result);
+			roobyInput[0] = ((s[1]&0xff)<<8)|(s[2]&0xff);
+			roobyInput[1] = ((s[3]&0xff)<<8)|(s[4]&0xff);
+			roobyInput[2] = ((s[5]&0xff)<<8)|(s[6]&0xff);
+		} 
+	}
+
+	
+	this.request = function(device, command)
+	{
+		if ((!device) || (!oUSB.enabled))
+		{
+			console.log('!! device not connected !!');
+		} else {
+			console.log(oUSB.readStep+': request: '+oUSB.currentCommand[0]+", "+
 									oUSB.currentCommand[1]+", "+
 									oUSB.currentCommand[2]+", "+
 									oUSB.currentCommand[3]+", "+
@@ -94,7 +84,7 @@ function usbManager(device)
 				//--
 				if (oUSB.currentCallback)
 				{
-					oUSB.currentCallback();
+					try {oUSB.currentCallback(); } catch(err) {console.log(err.message); }
 					oUSB.currentCallback = undefined;
 					for (i=0;i<9;i++)
 					{
@@ -105,53 +95,89 @@ function usbManager(device)
 					oUSB.readStep = 1;
 				}
 				//--
+				//console.log("called");
 				
 			} else if (oUSB.readStep==1)
 			{
 				//--
-				result 	 	= device.read();
-				var s 		= new Uint8Array(result);
+				result 	 	= device.read( function(data) {
+					var s =new Uint8Array(data);
+					roobyInput[0] = ((s[1]&0xff)<<8)|(s[2]&0xff);
+					roobyInput[1] = ((s[3]&0xff)<<8)|(s[4]&0xff);
+					roobyInput[2] = ((s[5]&0xff)<<8)|(s[6]&0xff);	
+					console.log(roobyInput);					
+				});
+				/*var s 		= new Uint8Array(result);
 				roobyInput[0] = ((s[1]&0xff)<<8)|(s[2]&0xff);
 				roobyInput[1] = ((s[3]&0xff)<<8)|(s[4]&0xff);
-				roobyInput[2] = ((s[5]&0xff)<<8)|(s[6]&0xff);
+				roobyInput[2] = ((s[5]&0xff)<<8)|(s[6]&0xff);*/
 				oUSB.readStep = 0;	
 				if (oUSB.forcestop==1)
 				{
 					oUSB.forcestop = 2;		
 				}				
-				//console.log('Read done:'+s.length);
+				//console.log('Read done:');
 			} else if (oUSB.readStep==2)
 			{
 				//--force readinit after a write
 				device.write(oUSB.currentCommand);
 				oUSB.readStep = 1;
+				//console.log('Write');
 			}
 		
-			if (oUSB.forcestop!=2)
+			if ( (oUSB.forcestop!=2))
 			{
-				oUSB.timeout = window.setTimeout(function() { oUSB.request(device, command, callback);
-				}, 100, device, command, callback);
+				oUSB.timeout = window.setTimeout(function() { oUSB.request(device, command);
+				}, 100, device, command);
 			}
 		}
 		
 	};
 	
-	this.write  = function(device, command, callback)
+	//-- Asynchronous
+	this.writeASYNC  = function(device, command, callback)
 	{
 		for (i=0;i<9;i++)
 		{
 			this.currentCommand[i] 	= command.sel[i];
-			this.currentCallback 	= callback;
 		}
+		this.currentCallback 	= callback;
 	};
-
-
 	
+	this.readASYNC  = this.writeASYNC;
+
+	//- synchronous
+	this.writeSYNC  = function(device, command, callback)
+	{
+		for (i=0;i<9;i++)
+		{
+			this.currentCommand[i] 	= command.sel[i];
+		}
+		this.currentCallback 	= callback;
+		device.write(oUSB.currentCommand); callback();
+	};
+	
+	this.readSYNC  = function(device, command, callback)
+	{
+		device.write(oUSB.defaultCommand); 
+		oUSB.readDevice(device);
+		
+		//oUSB.timeout = window.setTimeout(function() { oUSB.readDevice(device); }, 100, device);
+	};	
+	
+	
+	//-- Bindings
+	this.write = this.writeASYNC;
+	this.read  = this.readASYNC;
+	
+	
+	//-----------------------------------
 	this.init  = function(device, command, callback)
 	{
 		this.enabled 	= true;
 		this.forcestop 	= 0;
 		this.request(device);
+		
 		/*$(window).bind('beforeunload', function(event) {
 			alert( 'pls save ur work');
 		});*/
@@ -185,8 +211,17 @@ new (function() {
 	}
 	
 	ext.teststop = function (callback) {
+		
+		myRooby.write(device, { type : 'write', sel	: [0x00, 0x65, 0x81, 0, 0, 0x00, 0x00, 0x00, 0x00] }, function() {});
+		myRooby.write(device, { type : 'write', sel	: [0x00, 0x65, 0x82, 0, 0, 0x00, 0x00, 0x00, 0x00] }, function() {});
+		myRooby.write(device, { type : 'write', sel	: [0x00, 0x65, 0x83, 0, 0, 0x00, 0x00, 0x00, 0x00] }, function() {});
+		myRooby.write(device, { type : 'write', sel	: [0x00, 0x65, 0x84, 0, 0, 0x00, 0x00, 0x00, 0x00] }, function() {});
+		myRooby.write(device, { type : 'write', sel	: [0x00, 0x65, 0x85, 0, 0, 0x00, 0x00, 0x00, 0x00] }, function() {});
+		myRooby.write(device, { type : 'write', sel	: [0x00, 0x65, 0x86, 0, 0, 0x00, 0x00, 0x00, 0x00] }, function() {});
+		
 		myRooby.stop(device);
-		callback();
+		
+		callback(); 
 		return true;
 	}	
 	//-- 
@@ -274,111 +309,35 @@ new (function() {
 
 	
 	ext.readDigitalInputs = function (param1, callback) {
-		//var outputI = [0x00, 0x37, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
-		//device.write(outputI);
-		/*
-		myRooby.request(device, {
-			type : 'write',
-			sel	: [0x00, 0x37, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
-		}, function(){});
-
-		if (!myRooby.empty)
-		{
-			window.setTimeout(function() { 
-			
-				myRooby.request(device, {
-					type : 'read'
-				}, function(inputs){
-					var s = new Uint8Array(inputs);
-					console.log('Read done:'+s.length);
-					//console.log("read:"+s[0]+", "+s[1]+", "+s[2]+", "+s[3]+", "+s[4]+", "+s[5]+", "+s[6]+", "+s[7]);
-					inputs = null;
-					roobyInput[0] = ((s[1]&0xff)<<8)|(s[2]&0xff);
-					roobyInput[1] = ((s[3]&0xff)<<8)|(s[4]&0xff);
-					roobyInput[2] = ((s[5]&0xff)<<8)|(s[6]&0xff);	
-				});
-			
-			}, 100, device, callback);
-		}
-		*/
-		
-		
-		
-
+		//myRooby.read(device);
 		if (param1==0)
 		{
-			return (roobyInput[0]>0x1ff)? 0 : 1;	
+			val = (roobyInput[0]>0x1ff)? 0 : 1;	
 		} else if (param1==1)
 		{
-			return (roobyInput[1]>0x1ff)? 0 : 1;
+			val = (roobyInput[1]>0x1ff)? 0 : 1;
 		} else if (param1==2)
 		{
-			return (roobyInput[2]>0x1ff)? 0 : 1;
+			val = (roobyInput[2]>0x1ff)? 0 : 1;
 		} else {
-			return -1;	
-		}		
-		/*
-		inputs = device.read();
-		var s = new Uint8Array(inputs);
-		//console.log("read:"+s[0]+", "+s[1]+", "+s[2]+", "+s[3]+", "+s[4]+", "+s[5]+", "+s[6]+", "+s[7]);
-		inputs = null;
-		input0 = ((s[1]&0xff)<<8)|(s[2]&0xff);
-		input1 = ((s[3]&0xff)<<8)|(s[4]&0xff);
-		input2 = ((s[5]&0xff)<<8)|(s[6]&0xff);	
+			val = -1;	
+		}	
+		//callback();	
+		return val;		
 
-		if (param1==0)
-		{
-			return (input0>0x1ff)? 0 : 1;	
-		} else if (param1==1)
-		{
-			return (input1>0x1ff)? 0 : 1;
-		} else if (param1==2)
-		{
-			return (input2>0x1ff)? 0 : 1;
-		} else {
-			return -1;	
-		}
-		*/
 		
 	}	
 	
 	ext.readAnalogInputs = function (param1, callback) {
-		//device.write(output);
-		/*
-		var outputI = [0x00, 0x37, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
-		device.write(outputI);
-		
-		inputs = device.read();
-		var s = new Uint8Array(inputs);
-		//console.log("read:"+s[0]+", "+s[1]+", "+s[2]+", "+s[3]+", "+s[4]+", "+s[5]+", "+s[6]+", "+s[7]);
-		inputs = null;
-		input0 = ((s[1]&0xff)<<8)|(s[2]&0xff);
-		input1 = ((s[3]&0xff)<<8)|(s[4]&0xff);
-		input2 = ((s[5]&0xff)<<8)|(s[6]&0xff);	
-		console.log(param2);
-
 		if (param1==0)
 		{
-			return input0;	
+			return roobyInput[0];	
 		} else if (param1==1)
 		{
-			return input1;	
+			return roobyInput[1];
 		} else if (param1==2)
 		{
-			return input2;	
-		} else {
-			return -1;	
-		}	
-		*/
-		if (param1==0)
-		{
-			return (roobyInput[0]>0x1ff)? 0 : 1;	
-		} else if (param1==1)
-		{
-			return (roobyInput[1]>0x1ff)? 0 : 1;
-		} else if (param1==2)
-		{
-			return (roobyInput[2]>0x1ff)? 0 : 1;
+			return roobyInput[2];
 		} else {
 			return -1;	
 		}
@@ -388,29 +347,29 @@ new (function() {
 	//-- ---------------------------------------
 	//-- 	Servo  1
 	//-- ---------------------------------------
-	ext.setConfigMinServo1 = function (param1, param2, param3, callback) {
-		if (param1=='ANGLE')
+	ext.setConfigMinServo1 = function (paramPWM, paramType, paramCons, callback) {
+		if (paramType=='ANGLE')
 		{
-			servo1_angle_pwmmin = param2;
-			servo1_pwm_anglemin = param3;
+			servo1_angle_pwmmin = paramCons;
+			servo1_pwm_anglemin = paramPWM;
 		} else {
-			servo1_rot_pwmmin 	= param2;
-			servo1_pwm_rotmin 	= param3;
+			servo1_rot_pwmmin 	= paramCons;
+			servo1_pwm_rotmin 	= paramPWM;
 		}
-		callback();
+		try {callback(); } catch(err) {console.log(err.message); }
 		return true;	
 	}
 	
-	ext.setConfigMaxServo1 = function (param1, param2,  param3, callback) {
-		if (param1=='ANGLE')
+	ext.setConfigMaxServo1 = function (paramPWM, paramType, paramCons, callback) {
+		if (paramType=='ANGLE')
 		{
-			servo1_angle_pwmmax = param2;
-			servo1_pwm_anglemax = param3;
+			servo1_angle_pwmmax = paramCons;
+			servo1_pwm_anglemax = paramPWM;
 		} else {
-			servo1_rot_pwmmax 	= param3;
-			servo1_pwm_rotmax 	= param2;
+			servo1_rot_pwmmax 	= paramCons;
+			servo1_pwm_rotmax 	= paramPWM;
 		}
-		callback();
+		try {callback(); } catch(err) {console.log(err.message); }
 		return true;	
 	}
 	
@@ -418,7 +377,7 @@ new (function() {
 		if (!device) 
 		{
 			console.log('!! device not connected !!');
-			callback();
+			try {callback(); } catch(err) {console.log(err.message); }
 		} else {
 			if (param2 == 'ANGLE')
 			{
@@ -444,29 +403,29 @@ new (function() {
 	//-- ---------------------------------------
 	//-- 	Servo  2
 	//-- ---------------------------------------
-	ext.setConfigMinServo2 = function (param1, param2, param3, callback) {
-		if (param1=='ANGLE')
+	ext.setConfigMinServo2 = function (paramPWM, paramType, paramCons, callback) {
+		if (paramType=='ANGLE')
 		{
-			servo2_angle_pwmmin = param2;
-			servo2_pwm_anglemin = param3;
+			servo2_angle_pwmmin = paramCons;
+			servo2_pwm_anglemin = paramPWM;
 		} else {
-			servo2_rot_pwmmin 	= param2;
-			servo2_pwm_rotmin 	= param3;
+			servo2_rot_pwmmin 	= paramCons;
+			servo2_pwm_rotmin 	= paramPWM;
 		}
-		callback();
+		try {callback(); } catch(err) {console.log(err.message); }
 		return true;	
 	}
 	
-	ext.setConfigMaxServo2 = function (param1, param2, param3, callback) {
-		if (param1=='ANGLE')
+	ext.setConfigMaxServo2 = function (paramPWM, paramType, paramCons, callback) {
+		if (paramType=='ANGLE')
 		{
-			servo2_angle_pwmmax = param2;
-			servo2_pwm_anglemax = param3;
+			servo2_angle_pwmmax = paramCons;
+			servo2_pwm_anglemax = paramPWM;
 		} else {
-			servo2_rot_pwmmax 	= param2;
-			servo2_pwm_rotmax 	= param3;
+			servo2_rot_pwmmax 	= paramCons;
+			servo2_pwm_rotmax 	= paramPWM;
 		}
-		callback();
+		try {callback(); } catch(err) {console.log(err.message); }
 		return true;	
 	}
 
@@ -474,9 +433,9 @@ new (function() {
 		if (!device) 
 		{
 			console.log('!! device not connected !!');
-			callback();
+			try {callback(); } catch(err) {console.log(err.message); }
 		} else {
-			if (param2 == 'ANGLE')
+			if (param2 == 'ANGLE') 
 			{
 				pwm 	= (((param1 - servo2_angle_pwmmin) * (servo2_pwm_anglemax - servo2_pwm_anglemin) / (servo2_angle_pwmmax - servo2_angle_pwmmin)) + servo2_pwm_anglemin); 
 			} else if (param2 == 'VITESSE')
@@ -500,17 +459,17 @@ new (function() {
 	//-- ---------------------------------------
 	//-- 	Motor 1
 	//-- ---------------------------------------
-	ext.setConfigMinMotor1 = function (param1, param2, param3, callback) {
-		motor1_rot_pwmmin 	= param2;
-		motor1_pwm_rotmin 	= param3;
-		callback();
+	ext.setConfigMinMotor1 = function (paramPWM, paramCons,  callback) {
+		motor1_rot_pwmmin 	= paramCons;
+		motor1_pwm_rotmin 	= paramPWM;
+		try {callback(); } catch(err) {console.log(err.message); }
 		return true;	
 	}
 	
-	ext.setConfigMaxMotor1 = function (param1, param2, param3, callback) {
-		motor1_rot_pwmmax 	= param2;
-		motor1_pwm_rotmax 	= param3;
-		callback();
+	ext.setConfigMaxMotor1 = function (paramPWM, paramCons,  callback) {
+		motor1_rot_pwmmax 	= paramCons;
+		motor1_pwm_rotmax 	= paramPWM;
+		try {callback(); } catch(err) {console.log(err.message); }
 		return true;	
 	}
 
@@ -518,7 +477,7 @@ new (function() {
 		if (!device) 
 		{
 			console.log('!! device not connected !!');
-			callback();
+			try {callback(); } catch(err) {console.log(err.message); }
 		} else {
 			if (param2 == 'VITESSE')
 			{
@@ -540,17 +499,17 @@ new (function() {
 	//-- ---------------------------------------
 	//-- 	Motor 2
 	//-- ---------------------------------------
-	ext.setConfigMinMotor2 = function (param1, param2, param3, callback) {
-		motor2_rot_pwmmin 	= param2;
-		motor2_pwm_rotmin 	= param3;
-		callback();
+	ext.setConfigMinMotor2 = function (paramPWM, paramCons, callback) {
+		motor2_rot_pwmmin 	= paramCons;
+		motor2_pwm_rotmin 	= paramPWM;
+		try {callback(); } catch(err) {console.log(err.message); }
 		return true;	
 	}
 	
-	ext.setConfigMaxMotor2 = function (param1, param2, param3, callback) {
-		motor2_rot_pwmmax 	= param2;
-		motor2_pwm_rotmax 	= param3;
-		callback();
+	ext.setConfigMaxMotor2 = function (paramPWM, paramCons, callback) {
+		motor2_rot_pwmmax 	= paramCons;
+		motor2_pwm_rotmax 	= paramPWM;
+		try {callback(); } catch(err) {console.log(err.message); }
 		return true;	
 	}
 
@@ -558,7 +517,7 @@ new (function() {
 		if (!device) 
 		{
 			console.log('!! device not connected !!');
-			callback();
+		try {callback(); } catch(err) {console.log(err.message); }
 		} else {
 			if (param2 == 'VITESSE')
 			{
@@ -576,54 +535,69 @@ new (function() {
 		return true;
 	}
 	
-	ext.setOutput3 = function(param1, callback) {
+	ext.setOutput3 = function(param1, param2, callback) {
 		if (!device) 
 		{
 			console.log('!! device not connected !!');
-			callback();
+			try {callback(); } catch(err) {console.log(err.message); }
 		} else {
-			//var output2 = [0x00, 0x65, 0x82, param1, 0, 0x00, 0x00, 0x00, 0x00];
+			//var output2 = [0x00, 0x65, 0x82, param2, 0, 0x00, 0x00, 0x00, 0x00];
 			//device.write(output2);
-			myRooby.write(device, {
-				type : 'write',
-				sel	: [0x00, 0x65, 0x82, param1, 0, 0x00, 0x00, 0x00, 0x00]
-			}, callback);
+			if (param1=='LED')
+			{
+				myRooby.write(device, {
+					type : 'write',
+					sel	: [0x00, 0x65, 0x82, param2, 0, 0x00, 0x00, 0x00, 0x00]
+				}, callback);
+			} else {
+				myRooby.write(device, {
+					type : 'write',
+					sel	: [0x00, 0x65, 0x81, param2, 0, 0x00, 0x00, 0x00, 0x00]
+				}, callback);
+			}
+			
 		}
 		return true;
 	}
 	
 	var descriptor = {
 		blocks: [
-			['w', 'Servo1 %m.cfgMode1 min %d à %d (PWM) ',   	'setConfigMinServo1', 'ANGLE', servo_angle_pwmmin,  servo_pwm_anglemin], //http://www.fileformat.info/info/unicode/char/2220/index.htm ∠ 
-			['w', 'Servo1 %m.cfgMode1 max %d à %d (PWM) ',   	'setConfigMaxServo1', 'ANGLE', servo_angle_pwmmax,  servo_pwm_anglemax],
+			//-------------------------------
+			['w', 'Affecter Servo1 à %d ( %m.pwmMode1 )', 			'setServo1', 0, 'ANGLE'],
+			['w', 'Affecter Servo2 à %d ( %m.pwmMode1 )', 			'setServo2', 0, 'ANGLE'],
+			['w', 'Affecter Moteur1 à %d ( %m.pwmMode2 )', 		 	'setMotor1', 0, 'VITESSE'],
+			['w', 'Affecter Moteur2 à %d ( %m.pwmMode2 )', 		 	'setMotor2', 0, 'VITESSE'],
+			['w', 'Affecter sortie %m.outputName à %d', 			'setOutput3', 'LED', 0],
 			
-			['w', 'Servo2 %m.cfgMode1 min %d à %d (PWM) ',   	'setConfigMinServo2', 'ANGLE', servo_angle_pwmmin,  servo_pwm_anglemin],
-			['w', 'Servo2 %m.cfgMode1 max %d à %d (PWM) ',   	'setConfigMaxServo2', 'ANGLE', servo_angle_pwmmax,  servo_pwm_anglemax],
-
-			['w', 'Moteur 1 vitesse min %d à %d (PWM) ',   		'setConfigMinMotor1', motor_rot_pwmmin,  motor_pwm_rotmin],
-			['w', 'Moteur 1 vitesse max %d à %d (PWM) ',   		'setConfigMaxMotor1', motor_rot_pwmmax,  motor_pwm_rotmax],
+			//-------------------------------
+			['w', 'Configure Rooby', 'testinit'],
+			['w', 'Arrêter Rooby',   'teststop'],
 			
-			['w', 'Moteur 2 vitesse min %d à %d (PWM) ',   		'setConfigMinMotor2', motor_rot_pwmmin,  motor_pwm_rotmin],
-			['w', 'Moteur 2 vitesse max %d à %d (PWM) ',   		'setConfigMaxMotor2', motor_rot_pwmmax,  motor_pwm_rotmax],
-			
-			['w', 'Set Servo1 à %d ( %m.pwmMode1 )', 			'setServo1', 0, 'ANGLE'],
-			['w', 'Set Servo2 à %d ( %m.pwmMode1 )', 			'setServo2', 0, 'ANGLE'],
-			['w', 'Set Moteur1 à %d ( %m.pwmMode2 )', 		 	'setMotor1', 0, 'VITESSE'],
-			['w', 'Set Moteur2 à %d ( %m.pwmMode2 )', 		 	'setMotor2', 0, 'VITESSE'],
-
-			
-			['w', 'Affecter Sortie n°3 %d', 'setOutput3', 0],
-			['w', 'INIT', 'testinit'],
-			['w', 'STOP', 'teststop'],
-			
+			//-------------------------------
 			//['w', 'init inputs', 'initInputs'],
-			['r', 'Lire entrée numérique  %d ', 'readDigitalInputs', 0],
-			['r', 'Lire entrée analoqique %d ', 'readAnalogInputs', 0],
-	],
+			['r', 'Lire entrée numérique  n°%m.inputNb ', 'readDigitalInputs', 0],
+			['r', 'Lire entrée analoqique n°%m.inputNb ', 'readAnalogInputs',  0],
+
+			//-------------------------------
+			['w', 'Servo 1 : Définir PWM à %d pour %m.cfgMode1 min %d ',   'setConfigMinServo1',  servo_pwm_anglemin,  'ANGLE', servo_angle_pwmmin], //http://www.fileformat.info/info/unicode/char/2220/index.htm ∠ 
+			['w', 'Servo 1 : Définir PWM à %d pour %m.cfgMode1 max %d ',   'setConfigMinServo1',  servo_pwm_anglemax,  'ANGLE', servo_angle_pwmmax], 
+			
+			['w', 'Servo 2 : Définir PWM à %d pour %m.cfgMode1 min %d ',   'setConfigMinServo2',  servo_pwm_anglemin,  'ANGLE', servo_angle_pwmmin], 
+			['w', 'Servo 2 : Définir PWM à %d pour %m.cfgMode1 max %d ',   'setConfigMinServo2',  servo_pwm_anglemax,  'ANGLE', servo_angle_pwmmax], 
+
+			['w', 'Moteur 1 : Définir PWM à %d pour vitesse min %d ',   	'setConfigMinMotor1', motor_pwm_rotmin, motor_rot_pwmmin],
+			['w', 'Moteur 1 : Définir PWM à %d pour vitesse max %d ',   	'setConfigMinMotor1', motor_pwm_rotmax, motor_rot_pwmmax],
+
+			['w', 'Moteur 2 : Définir PWM à %d pour vitesse min %d ',   	'setConfigMinMotor2', motor_pwm_rotmin, motor_rot_pwmmin],
+			['w', 'Moteur 2 : Définir PWM à %d pour vitesse max %d ',   	'setConfigMinMotor2', motor_pwm_rotmax, motor_rot_pwmmax],
+
+		],
 	menus: {
-		cfgMode1: ['ANGLE', 'VITESSE'],
-		pwmMode1: ['PWM', 'ANGLE', 'VITESSE'],
-		pwmMode2: ['PWM', 'VITESSE'],
+		inputNb 	: [0, 1, 2],
+		outputName 	: ['Buzzer', 'LED'],
+		cfgMode1	: ['ANGLE', 'VITESSE'],
+		pwmMode1	: ['PWM', 'ANGLE', 'VITESSE'],
+		pwmMode2	: ['PWM', 'VITESSE'],
 		}
 	};
 	ScratchExtensions.register('Rooby', descriptor, ext, {type: 'hid', vendor:0x0fd7, product:0x5010}); //ICE_ID  "Vid_0fd7&Pid_5010"	
