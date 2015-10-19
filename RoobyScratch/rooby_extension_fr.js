@@ -460,7 +460,7 @@ new (function() {
 	//-- ---------------------------------------
 	//-- 	Motor 1
 	//-- ---------------------------------------
-	ext.setConfigdirMotor1 = function (paramDir  callback) {
+	ext.setConfigDirMotor1 = function (paramDir,  callback) {
 		if (paramDir=='Inverser')
 		{
 			motor1_dir_rot = 1;
@@ -511,7 +511,7 @@ new (function() {
 	//-- ---------------------------------------
 	//-- 	Motor 2
 	//-- ---------------------------------------
-	ext.setConfigdirMotor2 = function (paramDir  callback) {
+	ext.setConfigDirMotor2 = function (paramDir,  callback) {
 		if (paramDir=='Inverser')
 		{
 			motor2_dir_rot = 1;
@@ -608,11 +608,11 @@ new (function() {
 			['w', 'Servo 2 : Définir PWM à %d pour %m.cfgMode1 min %d ',   'setConfigMinServo2',  servo_pwm_anglemin,  'ANGLE', servo_angle_pwmmin], 
 			['w', 'Servo 2 : Définir PWM à %d pour %m.cfgMode1 max %d ',   'setConfigMaxServo2',  servo_pwm_anglemax,  'ANGLE', servo_angle_pwmmax], 
 
-			['w', 'Moteur 1 : %m.dirMode1 sens de rotation',   				'setConfigdirMotor1', 'Inverser'],
+			['w', 'Moteur 1 : %m.dirMode1 sens de rotation',   				'setConfigDirMotor1', 'Inverser'],
 			['w', 'Moteur 1 : Définir PWM à %d pour vitesse min %d ',   	'setConfigMinMotor1', motor_pwm_rotmin, motor_rot_pwmmin],
 			['w', 'Moteur 1 : Définir PWM à %d pour vitesse max %d ',   	'setConfigMaxMotor1', motor_pwm_rotmax, motor_rot_pwmmax],
 
-			['w', 'Moteur 1 : %m.dirMode1 sens de rotation',   				'setConfigdirMotor2', 'Inverser' ],
+			['w', 'Moteur 1 : %m.dirMode1 sens de rotation',   				'setConfigDirMotor2', 'Inverser' ],
 			['w', 'Moteur 2 : Définir PWM à %d pour vitesse min %d ',   	'setConfigMinMotor2', motor_pwm_rotmin, motor_rot_pwmmin],
 			['w', 'Moteur 2 : Définir PWM à %d pour vitesse max %d ',   	'setConfigMaxMotor2', motor_pwm_rotmax, motor_rot_pwmmax],
 
