@@ -500,9 +500,10 @@ new (function() {
 			//console.log('setMotor1 to '+pwm);
 			//var output2 = [0x00, 0x65, 0x86, parseInt(pwm), 0, 0x01, 0x00, 0x00, 0x00];
 			//device.write(output2);
+			val = pwm*motor1_dir_rot;
 			myRooby.write(device, {
 				type : 'write',
-				sel	: [0x00, 0x65, 0x86, parseInt(pwm*motor1_dir_rot), 0, 0x00, 0x00, 0x00, 0x00]
+				sel	: [0x00, 0x65, 0x86, parseInt(val), parseInt(val>>8), (motor1_dir_rot==-1)?1:0, 0x00, 0x00, 0x00]
 			}, callback);			
 		}
 		return true;
@@ -550,9 +551,10 @@ new (function() {
 			}
 			//var output2 = [0x00, 0x65, 0x85, parseInt(pwm), 0, 0x00, 0x00, 0x00, 0x00];
 			//device.write(output2);
+			val = pwm*motor2_dir_rot;
 			myRooby.write(device, {
 				type : 'write',
-				sel	: [0x00, 0x65, 0x85, parseInt(pwm*motor2_dir_rot), 0, 0x00, 0x00, 0x00, 0x00]
+				sel	: [0x00, 0x65, 0x85,  parseInt(val), parseInt(val>>8), (motor2_dir_rot==-1)?1:0, 0x00, 0x00, 0x00]
 			}, callback);
 		}
 		return true;
