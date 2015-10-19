@@ -580,16 +580,16 @@ new (function() {
 
 			//-------------------------------
 			['w', 'Servo 1 : Définir PWM à %d pour %m.cfgMode1 min %d ',   'setConfigMinServo1',  servo_pwm_anglemin,  'ANGLE', servo_angle_pwmmin], //http://www.fileformat.info/info/unicode/char/2220/index.htm ∠ 
-			['w', 'Servo 1 : Définir PWM à %d pour %m.cfgMode1 max %d ',   'setConfigMinServo1',  servo_pwm_anglemax,  'ANGLE', servo_angle_pwmmax], 
+			['w', 'Servo 1 : Définir PWM à %d pour %m.cfgMode1 max %d ',   'setConfigMaxServo1',  servo_pwm_anglemax,  'ANGLE', servo_angle_pwmmax], 
 			
 			['w', 'Servo 2 : Définir PWM à %d pour %m.cfgMode1 min %d ',   'setConfigMinServo2',  servo_pwm_anglemin,  'ANGLE', servo_angle_pwmmin], 
-			['w', 'Servo 2 : Définir PWM à %d pour %m.cfgMode1 max %d ',   'setConfigMinServo2',  servo_pwm_anglemax,  'ANGLE', servo_angle_pwmmax], 
+			['w', 'Servo 2 : Définir PWM à %d pour %m.cfgMode1 max %d ',   'setConfigMaxServo2',  servo_pwm_anglemax,  'ANGLE', servo_angle_pwmmax], 
 
 			['w', 'Moteur 1 : Définir PWM à %d pour vitesse min %d ',   	'setConfigMinMotor1', motor_pwm_rotmin, motor_rot_pwmmin],
-			['w', 'Moteur 1 : Définir PWM à %d pour vitesse max %d ',   	'setConfigMinMotor1', motor_pwm_rotmax, motor_rot_pwmmax],
+			['w', 'Moteur 1 : Définir PWM à %d pour vitesse max %d ',   	'setConfigMaxMotor1', motor_pwm_rotmax, motor_rot_pwmmax],
 
 			['w', 'Moteur 2 : Définir PWM à %d pour vitesse min %d ',   	'setConfigMinMotor2', motor_pwm_rotmin, motor_rot_pwmmin],
-			['w', 'Moteur 2 : Définir PWM à %d pour vitesse max %d ',   	'setConfigMinMotor2', motor_pwm_rotmax, motor_rot_pwmmax],
+			['w', 'Moteur 2 : Définir PWM à %d pour vitesse max %d ',   	'setConfigMaxMotor2', motor_pwm_rotmax, motor_rot_pwmmax],
 
 		],
 	menus: {
