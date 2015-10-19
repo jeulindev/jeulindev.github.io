@@ -491,6 +491,12 @@ new (function() {
 			console.log('!! device not connected !!');
 			try {callback(); } catch(err) {console.log(err.message); }
 		} else {
+			sign = 0;
+			if (param1<0)
+			{
+				param1 = 0-param1;
+				sign = 1;
+			}
 			if (param2 == 'VITESSE')
 			{
 				pwm 	= (((param1 - motor1_rot_pwmmin) * (motor1_pwm_rotmax - motor1_pwm_rotmin) / (motor1_rot_pwmmax - motor1_rot_pwmmin)) + motor1_pwm_rotmin); 
@@ -502,7 +508,9 @@ new (function() {
 			//device.write(output2);
 			myRooby.write(device, {
 				type : 'write',
-				sel	: [0x00, 0x65, 0x86, parseInt(pwm), (motor1_dir_rot==-1)?0xff:0, (motor1_dir_rot==-1)?0:1, 0x00, 0x00, 0x00]
+				//sel	: [0x00, 0x65, 0x86, parseInt(pwm), (motor1_dir_rot==-1)?0xff:0, (motor1_dir_rot==-1)?0:1, 0x00, 0x00, 0x00]
+				//sel	: [0x00, 0x65, 0x86, parseInt(pwm*sign), (sign>0)? 0x00: 0xff, 0x00, 0x00, 0x00, 0x00]
+				sel	: [0x00, 0x65, 0x86, parseInt(pwm), 0x00, sign^(motor1_dir_rot==-1), 0x00, 0x00, 0x00]
 			}, callback);			
 		}
 		return true;
@@ -542,6 +550,12 @@ new (function() {
 			console.log('!! device not connected !!');
 		try {callback(); } catch(err) {console.log(err.message); }
 		} else {
+			sign = 0;
+			if (param1<0)
+			{
+				param1 	= 0-param1;
+				sign 	= 1;
+			}
 			if (param2 == 'VITESSE')
 			{
 				pwm 	= (((param1 - motor2_rot_pwmmin) * (motor2_pwm_rotmax - motor2_pwm_rotmin) / (motor2_rot_pwmmax - motor2_rot_pwmmin)) + motor2_pwm_rotmin); 
@@ -552,7 +566,8 @@ new (function() {
 			//device.write(output2);
 			myRooby.write(device, {
 				type : 'write',
-				sel	: [0x00, 0x65, 0x85,  parseInt(pwm),(motor2_dir_rot==-1)?0xff:0, (motor2_dir_rot==-1)?0:1, 0x00, 0x00, 0x00]
+				//sel	: [0x00, 0x65, 0x85,  parseInt(pwm),(motor2_dir_rot==-1)?0xff:0, (motor2_dir_rot==-1)?0:1, 0x00, 0x00, 0x00]
+				sel	: [0x00, 0x65, 0x85, parseInt(pwm), 0x00, sign^(motor2_dir_rot==-1), 0x00, 0x00, 0x00]
 			}, callback);
 		}
 		return true;
