@@ -15,9 +15,10 @@ servo1_rot_pwmmin 		= servo2_rot_pwmmin 	= servo_rot_pwmmin 		= -10;
 servo1_rot_pwmmax 		= servo2_rot_pwmmax 	= servo_rot_pwmmax 		=  10;
 
 
+motor1_dir_rot 			= motor2_dir_rot 		= motor_dir_rot 		=  1;
 motor1_pwm_rotmin 		= motor2_pwm_rotmin 	= motor_pwm_rotmin 		=  24;
-motor1_pwm_rotmax 		= motor2_pwm_rotmax 	= motor_pwm_rotmax 		=  29;
-motor1_rot_pwmmin 		= motor2_rot_pwmmin 	= motor_rot_pwmmin 		= -10;
+motor1_pwm_rotmax 		= motor2_pwm_rotmax 	= motor_pwm_rotmax 		=  49;
+motor1_rot_pwmmin 		= motor2_rot_pwmmin 	= motor_rot_pwmmin 		=   0;
 motor1_rot_pwmmax 		= motor2_rot_pwmmax 	= motor_rot_pwmmax 		=  10;
 
 var myRooby;
@@ -459,6 +460,17 @@ new (function() {
 	//-- ---------------------------------------
 	//-- 	Motor 1
 	//-- ---------------------------------------
+	ext.setConfigdirMotor1 = function (paramDir  callback) {
+		if (paramDir=='Inverser')
+		{
+			motor1_dir_rot = 1;
+		} else {
+			motor1_dir_rot = -1;
+		}
+		try {callback(); } catch(err) {console.log(err.message); }
+		return true;	
+	}
+	
 	ext.setConfigMinMotor1 = function (paramPWM, paramCons,  callback) {
 		motor1_rot_pwmmin 	= paramCons;
 		motor1_pwm_rotmin 	= paramPWM;
@@ -490,7 +502,7 @@ new (function() {
 			//device.write(output2);
 			myRooby.write(device, {
 				type : 'write',
-				sel	: [0x00, 0x65, 0x86, parseInt(pwm), 0, 0x00, 0x00, 0x00, 0x00]
+				sel	: [0x00, 0x65, 0x86, parseInt(pwm*motor1_dir_rot), 0, 0x00, 0x00, 0x00, 0x00]
 			}, callback);			
 		}
 		return true;
@@ -499,6 +511,17 @@ new (function() {
 	//-- ---------------------------------------
 	//-- 	Motor 2
 	//-- ---------------------------------------
+	ext.setConfigdirMotor2 = function (paramDir  callback) {
+		if (paramDir=='Inverser')
+		{
+			motor2_dir_rot = 1;
+		} else {
+			motor2_dir_rot = -1;
+		}
+		try {callback(); } catch(err) {console.log(err.message); }
+		return true;	
+	}
+
 	ext.setConfigMinMotor2 = function (paramPWM, paramCons, callback) {
 		motor2_rot_pwmmin 	= paramCons;
 		motor2_pwm_rotmin 	= paramPWM;
@@ -529,7 +552,7 @@ new (function() {
 			//device.write(output2);
 			myRooby.write(device, {
 				type : 'write',
-				sel	: [0x00, 0x65, 0x85, parseInt(pwm), 0, 0x00, 0x00, 0x00, 0x00]
+				sel	: [0x00, 0x65, 0x85, parseInt(pwm*motor2_dir_rot), 0, 0x00, 0x00, 0x00, 0x00]
 			}, callback);
 		}
 		return true;
@@ -585,9 +608,11 @@ new (function() {
 			['w', 'Servo 2 : Définir PWM à %d pour %m.cfgMode1 min %d ',   'setConfigMinServo2',  servo_pwm_anglemin,  'ANGLE', servo_angle_pwmmin], 
 			['w', 'Servo 2 : Définir PWM à %d pour %m.cfgMode1 max %d ',   'setConfigMaxServo2',  servo_pwm_anglemax,  'ANGLE', servo_angle_pwmmax], 
 
+			['w', 'Moteur 1 : %m.dirMode1 sens de rotation',   				'setConfigdirMotor1', 'Inverser'],
 			['w', 'Moteur 1 : Définir PWM à %d pour vitesse min %d ',   	'setConfigMinMotor1', motor_pwm_rotmin, motor_rot_pwmmin],
 			['w', 'Moteur 1 : Définir PWM à %d pour vitesse max %d ',   	'setConfigMaxMotor1', motor_pwm_rotmax, motor_rot_pwmmax],
 
+			['w', 'Moteur 1 : %m.dirMode1 sens de rotation',   				'setConfigdirMotor2', 'Inverser' ],
 			['w', 'Moteur 2 : Définir PWM à %d pour vitesse min %d ',   	'setConfigMinMotor2', motor_pwm_rotmin, motor_rot_pwmmin],
 			['w', 'Moteur 2 : Définir PWM à %d pour vitesse max %d ',   	'setConfigMaxMotor2', motor_pwm_rotmax, motor_rot_pwmmax],
 
@@ -595,6 +620,7 @@ new (function() {
 	menus: {
 		inputNb 	: [0, 1, 2],
 		outputName 	: ['Buzzer', 'LED'],
+		dirMode1	: ['Inverser', 'Conserver'],
 		cfgMode1	: ['ANGLE', 'VITESSE'],
 		pwmMode1	: ['PWM', 'ANGLE', 'VITESSE'],
 		pwmMode2	: ['PWM', 'VITESSE'],
