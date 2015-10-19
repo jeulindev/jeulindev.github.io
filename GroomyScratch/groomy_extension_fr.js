@@ -1,3 +1,6 @@
+// http://scratchx.org/?url=http://jeulindev.github.io/GroomyScratch/GroomyStartProject.sbx
+// http://scratchx.org/?url=http://jeulindev.github.io/GroomyScratch/groomy_extension_fr.js
+
 var time = 100;
 var waitingTimeRead  = 100;
 var waitingTimeWrite =  50;
