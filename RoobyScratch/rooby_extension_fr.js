@@ -579,7 +579,7 @@ new (function() {
 			['r', 'Lire entrée analoqique n°%m.inputNb ', 'readAnalogInputs',  0],
 
 			//-------------------------------
-			['w', 'Servo 1 : Définir PWM à %d pour %m.cfgMode1 min %d ',   'setConfigMinServo1',  servo_pwm_anglemin,  'ANGLE', servo_angle_pwmmin], //http://www.fileformat.info/info/unicode/char/2220/index.htm ∠ 
+			['w', 'Servo 1 : Définir PWM à %d pour %m.cfgMode1 min %d ',   'setConfigMinServo1',  servo_pwm_anglemin,  'ANGLE', servo_angle_pwmmin], 
 			['w', 'Servo 1 : Définir PWM à %d pour %m.cfgMode1 max %d ',   'setConfigMaxServo1',  servo_pwm_anglemax,  'ANGLE', servo_angle_pwmmax], 
 			
 			['w', 'Servo 2 : Définir PWM à %d pour %m.cfgMode1 min %d ',   'setConfigMinServo2',  servo_pwm_anglemin,  'ANGLE', servo_angle_pwmmin], 
@@ -601,6 +601,4 @@ new (function() {
 		}
 	};
 	ScratchExtensions.register('Rooby', descriptor, ext, {type: 'hid', vendor:0x0fd7, product:0x5010}); //ICE_ID  "Vid_0fd7&Pid_5010"	
-	//ScratchExtensions.register('Rooby', descriptor, ext, {type: 'hid', vendor:0x04d8, product:0x003F}); //
 })();
-//ScratchExtensions.unregister('Rooby');
