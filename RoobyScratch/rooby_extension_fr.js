@@ -374,7 +374,7 @@ new (function() {
 		return true;	
 	}
 	
-	ext.setServo1 = function(param1, param2, callback) {
+	ext.setServo1 = function(param2, param1, callback) {
 		if (!device) 
 		{
 			console.log('!! device not connected !!');
@@ -430,7 +430,7 @@ new (function() {
 		return true;	
 	}
 
-	ext.setServo2 = function(param1, param2, callback) {
+	ext.setServo2 = function(param2, param1, callback) {
 		if (!device) 
 		{
 			console.log('!! device not connected !!');
@@ -485,7 +485,7 @@ new (function() {
 		return true;	
 	}
 
-	ext.setMotor1 = function(param1, param2, callback) {
+	ext.setMotor1 = function(param2, param1, callback) {
 		if (!device) 
 		{
 			console.log('!! device not connected !!');
@@ -544,7 +544,7 @@ new (function() {
 		return true;	
 	}
 
-	ext.setMotor2 = function(param1, param2, callback) {
+	ext.setMotor2 = function(param2, param1, callback) {
 		if (!device) 
 		{
 			console.log('!! device not connected !!');
@@ -573,7 +573,7 @@ new (function() {
 		return true;
 	}
 	
-	ext.setOutput3 = function(param1, param2, callback) {
+	ext.setOutput3 = function(param2, param1, callback) {
 		if (!device) 
 		{
 			console.log('!! device not connected !!');
@@ -598,48 +598,100 @@ new (function() {
 		return true;
 	}
 	
-	var descriptor = {
-		blocks: [
-			//-------------------------------
-			['w', 'Affecter Servo1 à %d ( %m.pwmMode1 )', 			'setServo1', 0, 'ANGLE'],
-			['w', 'Affecter Servo2 à %d ( %m.pwmMode1 )', 			'setServo2', 0, 'ANGLE'],
-			['w', 'Affecter Moteur1 à %d ( %m.pwmMode2 )', 		 	'setMotor1', 0, 'VITESSE'],
-			['w', 'Affecter Moteur2 à %d ( %m.pwmMode2 )', 		 	'setMotor2', 0, 'VITESSE'],
-			['w', 'Affecter sortie %m.outputName à %d', 			'setOutput3', 'LED', 0],
-			
-			//-------------------------------
-			['w', 'Configure Rooby', 'testinit'],
-			['w', 'Arrêter Rooby',   'teststop'],
-			
-			//-------------------------------
-			//['w', 'init inputs', 'initInputs'],
-			['r', 'Lire entrée numérique  n°%m.inputNb ', 'readDigitalInputs', 0],
-			['r', 'Lire entrée analoqique n°%m.inputNb ', 'readAnalogInputs',  0],
+	
+	
+	
+	var lang = 'fr';
+	var menus = {
+		fr :  {
+			inputNb 	: [0, 1, 2],
+			outputName 	: ['Buzzer', 'DEL'],
+			dirMode1	: ['Inverser', 'Conserver'],
+			cfgMode1	: ['ANGLE', 'VITESSE'],
+			pwmMode1	: ['PWM', 'ANGLE', 'VITESSE'],
+			pwmMode2	: ['PWM', 'VITESSE'],
+		},
+		en :  {
+			inputNb 	: [0, 1, 2],
+			outputName 	: ['Buzzer', 'LED'],
+			dirMode1	: ['Reverse', 'Keep'],
+			cfgMode1	: ['ANGLE', 'SPEED'],
+			pwmMode1	: ['PWM', 'ANGLE', 'SPEED'],
+			pwmMode2	: ['PWM', 'SPEED'],
+		},
+	};	
+	
+	var blocks = {
+		fr :  [
+				//-------------------------------
+				['r', 'Lire entrée numérique  n°%m.inputNb ', 'readDigitalInputs', 0],
+				['r', 'Lire entrée analoqique n°%m.inputNb ', 'readAnalogInputs',  0],
+				['-'],['-'],
+				//-------------------------------
+				['w', 'Affecter %m.pwmMode1 Servo1 à %d ', 				'setServo1',  menus[lang].pwmMode1[1], 0], //'ANGLE'
+				['w', 'Affecter %m.pwmMode1 Servo2 à %d ', 				'setServo2',  menus[lang].pwmMode1[1], 0], //'ANGLE'
+				['w', 'Affecter %m.pwmMode2 Moteur1 à %d ', 		 	'setMotor1',  menus[lang].pwmMode2[1], 0], //'VITESSE'
+				['w', 'Affecter %m.pwmMode2 Moteur2 à %d ', 		 	'setMotor2',  menus[lang].pwmMode2[1], 0], //'VITESSE'
+				['w', 'Affecter sortie %d à %m.outputName', 			'setOutput3', menus[lang].outputName[1], 0],
+				['-'],
+				//-------------------------------
+				['w', 'Arrêter Rooby',   'teststop'],
+				['-'],['-'],['-'],['-'],
+				//-------------------------------
+				['w', 'Configure Rooby', 'testinit'],
+				['w', 'Servo 1 : Définir PWM à %d pour %m.cfgMode1 min %d ',   'setConfigMinServo1',  servo_pwm_anglemin,  menus[lang].pwmMode1[1], servo_angle_pwmmin], 
+				['w', 'Servo 1 : Définir PWM à %d pour %m.cfgMode1 max %d ',   'setConfigMaxServo1',  servo_pwm_anglemax,  menus[lang].pwmMode1[1], servo_angle_pwmmax], 
+				
+				['w', 'Servo 2 : Définir PWM à %d pour %m.cfgMode1 min %d ',   'setConfigMinServo2',  servo_pwm_anglemin,  menus[lang].pwmMode1[1], servo_angle_pwmmin], 
+				['w', 'Servo 2 : Définir PWM à %d pour %m.cfgMode1 max %d ',   'setConfigMaxServo2',  servo_pwm_anglemax,  menus[lang].pwmMode1[1], servo_angle_pwmmax], 
 
-			//-------------------------------
-			['w', 'Servo 1 : Définir PWM à %d pour %m.cfgMode1 min %d ',   'setConfigMinServo1',  servo_pwm_anglemin,  'ANGLE', servo_angle_pwmmin], 
-			['w', 'Servo 1 : Définir PWM à %d pour %m.cfgMode1 max %d ',   'setConfigMaxServo1',  servo_pwm_anglemax,  'ANGLE', servo_angle_pwmmax], 
-			
-			['w', 'Servo 2 : Définir PWM à %d pour %m.cfgMode1 min %d ',   'setConfigMinServo2',  servo_pwm_anglemin,  'ANGLE', servo_angle_pwmmin], 
-			['w', 'Servo 2 : Définir PWM à %d pour %m.cfgMode1 max %d ',   'setConfigMaxServo2',  servo_pwm_anglemax,  'ANGLE', servo_angle_pwmmax], 
+				['w', 'Moteur 1 : %m.dirMode1 sens de rotation',   				'setConfigDirMotor1', menus[lang].dirMode1[0]],
+				['w', 'Moteur 1 : Définir PWM à %d pour vitesse min %d ',   	'setConfigMinMotor1', motor_pwm_rotmin, motor_rot_pwmmin],
+				['w', 'Moteur 1 : Définir PWM à %d pour vitesse max %d ',   	'setConfigMaxMotor1', motor_pwm_rotmax, motor_rot_pwmmax],
 
-			['w', 'Moteur 1 : %m.dirMode1 sens de rotation',   				'setConfigDirMotor1', 'Inverser'],
-			['w', 'Moteur 1 : Définir PWM à %d pour vitesse min %d ',   	'setConfigMinMotor1', motor_pwm_rotmin, motor_rot_pwmmin],
-			['w', 'Moteur 1 : Définir PWM à %d pour vitesse max %d ',   	'setConfigMaxMotor1', motor_pwm_rotmax, motor_rot_pwmmax],
-
-			['w', 'Moteur 2 : %m.dirMode1 sens de rotation',   				'setConfigDirMotor2', 'Inverser' ],
-			['w', 'Moteur 2 : Définir PWM à %d pour vitesse min %d ',   	'setConfigMinMotor2', motor_pwm_rotmin, motor_rot_pwmmin],
-			['w', 'Moteur 2 : Définir PWM à %d pour vitesse max %d ',   	'setConfigMaxMotor2', motor_pwm_rotmax, motor_rot_pwmmax],
+				['w', 'Moteur 2 : %m.dirMode1 sens de rotation',   				'setConfigDirMotor2', menus[lang].dirMode1[0]],
+				['w', 'Moteur 2 : Définir PWM à %d pour vitesse min %d ',   	'setConfigMinMotor2', motor_pwm_rotmin, motor_rot_pwmmin],
+				['w', 'Moteur 2 : Définir PWM à %d pour vitesse max %d ',   	'setConfigMaxMotor2', motor_pwm_rotmax, motor_rot_pwmmax],
 
 		],
-	menus: {
-		inputNb 	: [0, 1, 2],
-		outputName 	: ['Buzzer', 'LED'],
-		dirMode1	: ['Inverser', 'Conserver'],
-		cfgMode1	: ['ANGLE', 'VITESSE'],
-		pwmMode1	: ['PWM', 'ANGLE', 'VITESSE'],
-		pwmMode2	: ['PWM', 'VITESSE'],
-		}
+		en :  [
+				//-------------------------------
+				['r', 'Read digital input  n°%m.inputNb ', 'readDigitalInputs', 0],
+				['r', 'Read analog output n°%m.inputNb ', 'readAnalogInputs',  0],
+				['-'],['-'],
+				//-------------------------------
+				['w', 'Set %m.pwmMode1 to %d for servo1 ', 			'setServo1', menus[lang].pwmMode1[1], 0 ],
+				['w', 'Set %m.pwmMode1 to %d for servo2 ', 			'setServo2', menus[lang].pwmMode1[1], 0 ], 
+				['w', 'Set %m.pwmMode2 to %d for motor1 ', 		 	'setMotor1', menus[lang].pwmMode2[1], 0 ],
+				['w', 'Set %m.pwmMode2 to %d for motor2 ', 		 	'setMotor2', menus[lang].pwmMode2[1], 0 ],
+				['w', 'Set %m.outputName to %d for output', 		'setOutput3', menus[lang].outputName[1], 0],
+				['-'],
+				//-------------------------------
+				['w', 'Stop Rooby',   'teststop'],
+				['-'],['-'],['-'],['-'],
+				//-------------------------------
+				['w', 'Configure Rooby', 'testinit'],
+				['w', 'Servo 1 : define PWM to %d for %m.cfgMode1 min %d ',   'setConfigMinServo1',  servo_pwm_anglemin,  menus[lang].pwmMode1[1], servo_angle_pwmmin], 
+				['w', 'Servo 1 : define PWM to %d for %m.cfgMode1 max %d ',   'setConfigMaxServo1',  servo_pwm_anglemax,  menus[lang].pwmMode1[1], servo_angle_pwmmax], 
+				
+				['w', 'Servo 2 : define PWM to %d for %m.cfgMode1 min %d ',   'setConfigMinServo2',  servo_pwm_anglemin,  menus[lang].pwmMode1[1], servo_angle_pwmmin], 
+				['w', 'Servo 2 : define PWM to %d for %m.cfgMode1 max %d ',   'setConfigMaxServo2',  servo_pwm_anglemax,  menus[lang].pwmMode1[1], servo_angle_pwmmax], 
+
+				['w', 'Moteur 1 : %m.dirMode1 rotation direction',   		'setConfigDirMotor1', menus[lang].dirMode1[0]],
+				['w', 'Moteur 1 : define PWM to %d for speed min %d ',   	'setConfigMinMotor1', motor_pwm_rotmin, motor_rot_pwmmin],
+				['w', 'Moteur 1 : define PWM to %d for speed max %d ',   	'setConfigMaxMotor1', motor_pwm_rotmax, motor_rot_pwmmax],
+
+				['w', 'Moteur 2 : %m.dirMode1 rotation direction',   		'setConfigDirMotor2', menus[lang].dirMode1[0] ], 
+				['w', 'Moteur 2 : define PWM to %d for speed min %d ',   	'setConfigMinMotor2', motor_pwm_rotmin, motor_rot_pwmmin],
+				['w', 'Moteur 2 : define PWM to %d for speed max %d ',   	'setConfigMaxMotor2', motor_pwm_rotmax, motor_rot_pwmmax],
+
+		],
+	};
+	
+	
+	var descriptor = {
+		blocks	:  blocks[lang],
+		menus	:  menus[lang]
 	};
 	ScratchExtensions.register('Rooby', descriptor, ext, {type: 'hid', vendor:0x0fd7, product:0x5010}); //ICE_ID  "Vid_0fd7&Pid_5010"	
 })();
