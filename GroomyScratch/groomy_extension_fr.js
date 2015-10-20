@@ -1,10 +1,12 @@
 // http://scratchx.org/?url=http://jeulindev.github.io/GroomyScratch/GroomyStartProject.sbx
 // http://scratchx.org/?url=http://jeulindev.github.io/GroomyScratch/groomy_extension_fr.js
 
-var time = 100;
+var time 			 = 100;
 var waitingTimeRead  = 100;
 var waitingTimeWrite =  50;
-var myReq = undefined;
+var myReq 			 = undefined;
+var groomyConnected = false;
+
 function SqueereHTTP(url, instance)
 {
     this.loaded 	= false;
@@ -49,17 +51,17 @@ function SqueereHTTP(url, instance)
 			that.loaded = true;
 		}
 
-   }
+	}
 
     this.Request = function(force)
     {
-        /*that.AddParam('instance', that.instance);
-        if (force)
-        {
-            var mydate = new Date();
-            var zmydate = mydate.getTime();
-            that.AddParam('date', zmydate);
-        }*/
+		/*$('<div style="display:none"></div>').load(that.url,function(responseTxt, statusTxt, xhr){
+			if(statusTxt == "success")
+				console.log("External content loaded successfully!");
+			if(statusTxt == "error")
+				console.log("Error: " + xhr.status + ": " + xhr.statusText);
+		})*/
+
         that.script = document.createElement('script');
         that.script.setAttribute('charset','UTF-8');
         that.script.setAttribute('type','text/javascript');
@@ -68,13 +70,15 @@ function SqueereHTTP(url, instance)
         that.script.onreadystatechange = that.onLoad;
 		that.loaded  = false;
 		that.waiting = 1;
-		document.getElementsByTagName('head')[0].appendChild(that.script);
+		docEL = document.getElementsByTagName('head')[0].appendChild(that.script);
 		
  		window.setTimeout(function() { 
 			if (myReq.waiting == 2)
 			{
 				myReq.loaded 	= true;
 				myReq.waiting  	= 0;
+				document.getElementsByTagName('head')[0].removeChild(docEL);
+				
 				//d = new Date();; console.log("clear2 :"+d.getHours()+":"+d.getMinutes()+":"+d.getSeconds()+":"+d.getMilliseconds());
 			} else {
 				that.waiting = 0;
@@ -83,7 +87,6 @@ function SqueereHTTP(url, instance)
 			
 		}, waitingTimeRead);
    }
-
     return this;
 }
 
@@ -143,6 +146,7 @@ function getValueFor(zData, zMyClef)
 
 SNum = [-1, -1,-1,-1,-1,-1,-1,-1,-1];
 SAna = [-1, -1,-1];
+SRelay = [-1, -1,-1];
 ENum = [-1, -1,-1,-1,-1,-1,-1,-1,-1];
 EAna = [-1, -1,-1,-1,-1];
 
@@ -214,7 +218,7 @@ function UpdateEtat(zData)
             EAna[i] = parseInt(zValeur);
         }		
 		
-/*
+
         /////////////////////
         // Sorties relais
         zValeur = getValueFor(zData, 'SRELAIS');
@@ -226,22 +230,11 @@ function UpdateEtat(zData)
                 cEtat = getEtatFromMasque(zValeur, (giNbSRELAIS - i));
 
                 // recherche dans les donnees si on a SNUM=?? le ?? est retourne par la fonction
-                if (cEtat == '1')
-                {
-                    if (i==1) R1=1;
-                    if (i==2) R2=1;
-                    if (i==3) R3=1;
-                    if (i==4) R4=1;
-                }
-                else
-                {
-                    if (i==1) R1=0;
-                    if (i==2) R2=0;
-                    if (i==3) R3=0;
-                    if (i==4) R4=0;
-            }   
-        }
-*/
+                SRelay[i] =  parseInt(cEtat);
+				
+			}
+		}
+
     }
     catch(err)
     {
@@ -288,56 +281,78 @@ function waitDInput2(param1, param2, callback)
 }
 
 var writeT = 0;
-function SetOutput(da, number, value, callback)
+function SetOutput(options, number, value, callback)
 {
 	//-- generate new command
-	if (da)
+	if (options)
 	{
-		var snum = '';
-		for (var i=7; i>=0; i--)
-		{
-			if (i==(number-1))
-			{
-				snum = snum+value;
-			} else {
-				snum = snum+'x';
-			}
-		}
-		output = {
-			type  : "SNUM=",
-			value : snum
-		}
-	} else {
-		output = {
-			type  : 'SANA'+number+'=',
-			value : value
-		}	
-	}
-
-	if (writeT==0)
-	{	
-		//-- get iframe
-		jIframe =  $('#myframejeulin');
-		if (jIframe.length==0) {
-			jIframe = 		$('<iframe id="myframejeulin" src="." style="position:absolute;z-index:1; top: 68px; left: 203px;width:200px;height:200px;visibility:hidden"></iframe>').appendTo($(document).find(':first-child'));
-		} 
-			
-		//-- send cmd
-		$cmd = "http://"+$ip+"/etat.htm?"+output.type+output.value;
-		jIframe.attr('src', $cmd );
-		//console.log($cmd);
 		
-		//-- return
-		writeT = window.setTimeout(function() {
-			callback();
-			writeT =  0;
-		}, waitingTimeWrite);
-	} else {
-		//callback();
-		console.log('wait command');
-		writeT = window.setTimeout(function() {
-			SetOutput(da, number, value, callback);
-		}, waitingTimeWrite, da, number, value, callback);
+		if (options.digital)
+		{
+			var snum = '';
+			for (var i=7; i>=0; i--)
+			{
+				if (i==(number-1))
+				{
+					snum = snum+value;
+				} else {
+					snum = snum+'x';
+				}
+			}
+			output = {
+				type  : "SNUM=",
+				value : snum
+			}
+		} else if (options.analog) 
+		{
+			output = {
+				type  : 'SANA'+number+'=',
+				value : value
+			}	
+		} else if (options.relay)
+		{
+			var srelay = '';
+			for (var i=3; i>=0; i--)
+			{
+				if (i==(number-1))
+				{
+					srelay = srelay+value;
+				} else {
+					srelay = srelay+'x';
+				}
+			}
+			output = {
+				type  : 'SRELAIS=',
+				value : srelay
+			}	
+		}
+
+		if (writeT==0)
+		{	
+			//-- get iframe
+			jIframe =  $('#myframejeulin');
+			if (jIframe.length==0) {
+				jIframe = 		$('<iframe id="myframejeulin" src="." style="position:absolute;z-index:1; top: 68px; left: 203px;width:200px;height:200px;visibility:hidden"></iframe>').appendTo($(document).find(':first-child'));
+			} 
+				
+			//-- send cmd
+			$cmd = "http://"+$ip+"/etat.htm?"+output.type+output.value;
+			jIframe.attr('src', $cmd );	
+
+			//console.log($cmd);
+			
+			//-- return
+			writeT = window.setTimeout(function() {
+				callback();
+				writeT =  0;
+			}, waitingTimeWrite);
+		} else {
+			//callback();
+			console.log('wait command');
+			writeT = window.setTimeout(function() {
+				SetOutput(da, number, value, callback);
+			}, waitingTimeWrite, da, number, value, callback);
+		}
 	}
 }
 
@@ -355,6 +370,26 @@ $ip = "10.0.2.221";//
         return {status: 2, msg: 'Ready'};
     };
 	
+
+	ext.readGroomy = function() {
+		if ((myReq==undefined) || ((myReq!=undefined) && (myReq.loaded==true)))
+		{		
+			try
+			{
+				myReq = new SqueereHTTP('http://' + $ip +'/etat2.htm', 'myReq');
+				myReq.Request(true);
+				groomyConnected = true;
+				console.log('http://' + $ip +'/etat2.htm successed');
+			} catch(err) {
+				groomyConnected = false;
+				console.log('http://' + $ip +'/etat2.htm failed');
+
+			}
+		}		
+		//d = new Date(); console.log("send request :"+d.getHours()+":"+d.getMinutes()+":"+d.getSecond()+":"+d.getMilliseconds());
+	}
+
+
 	//-----------------------------------------------------------
 	//--
 	//--		Init groomy IP
@@ -367,6 +402,8 @@ $ip = "10.0.2.221";//
 		SAna 	= [-1, -1,-1];
 		ENum 	= [-1, -1,-1,-1,-1,-1,-1,-1,-1];
 		EAna 	= [-1, -1,-1,-1,-1];
+
+		this.readGroomy();
 		callback();
 		return true;
 	}
@@ -387,12 +424,7 @@ $ip = "10.0.2.221";//
 	//--
 	//-----------------------------------------------------------
 	ext.readDInput = function(param1, callback) {
-		if ((myReq==undefined) || ((myReq!=undefined) && (myReq.loaded==true)))
-		{
-			myReq = new SqueereHTTP('http://' + $ip +'/etat2.htm', 'myReq');
-			myReq.Request(true);
-			//d = new Date();; console.log("send request :"+d.getHours()+":"+d.getMinutes()+":"+d.getSeconds()+":"+d.getMilliseconds());
-		}
+		this.readGroomy();
         return ENum[parseInt(param1)];
 	}
 	
@@ -402,53 +434,50 @@ $ip = "10.0.2.221";//
 	//--
 	//-----------------------------------------------------------
 	ext.readAInput = function(param1, callback) {
-		if ((myReq==undefined) || ((myReq!=undefined) && (myReq.loaded==true)))
-		{
-			myReq = new SqueereHTTP('http://' + $ip +'/etat2.htm', 'myReq');
-			myReq.Request(true);
-			//d = new Date(); console.log("send request :"+d.getHours()+":"+d.getMinutes()+":"+d.getSecond()+":"+d.getMilliseconds());
-		}
+		this.readGroomy();
         return EAna[parseInt(param1)];
 	}	
 	
 	//-----------------------------------------------------------
 	//--
-	//--		
+	//--		read Digital Output
 	//--
 	//-----------------------------------------------------------
 	ext.readDOutput = function(param1, callback) {
-		if ((myReq==undefined) || ((myReq!=undefined) && (myReq.loaded==true)))
-		{
-			myReq = new SqueereHTTP('http://' + $ip +'/etat2.htm', 'myReq');
-			myReq.Request(true);
-			//d = new Date(); console.log("send request :"+d.getHours()+":"+d.getMinutes()+":"+d.getSecond()+":"+d.getMilliseconds());
-		}
+		this.readGroomy();
         return SNum[parseInt(param1)];
 	}
 	
 	//-----------------------------------------------------------
 	//--
-	//--		Set Analog Output
+	//--		read Analog Output
 	//--
 	//-----------------------------------------------------------
 	ext.readAOutput = function(param1, callback) {
-		if ((myReq==undefined) || ((myReq!=undefined) && (myReq.loaded==true)))
-		{
-			myReq = new SqueereHTTP('http://' + $ip +'/etat2.htm', 'myReq');
-			myReq.Request(true);
-			//d = new Date(); console.log("send request :"+d.getHours()+":"+d.getMinutes()+":"+d.getSecond()+":"+d.getMilliseconds());
-		}
+		this.readGroomy();
         return SAna[parseInt(param1)];
 	}	
-
+	//-----------------------------------------------------------
+	//--
+	//--		read relay output
+	//--
+	//-----------------------------------------------------------
+	ext.readROutput = function(param1, callback) {
+		this.readGroomy();
+        return SRelay[parseInt(param1)];
+	}	
+	
 	//-----------------------------------------------------------
 	//--
 	//--		Set Digital Output
 	//--
 	//-----------------------------------------------------------	
 	ext.setDOutput = function(param1, param2, callback) {
-		
-		SetOutput (true, param1, param2, callback);
+		if (groomyConnected)
+		{
+			SetOutput ({digital:true}, param1, param2, callback);
+			this.readGroomy(); // check if connected
+		}
 		return true;
 	};
 	
@@ -458,24 +487,54 @@ $ip = "10.0.2.221";//
 	//--
 	//-----------------------------------------------------------
 	ext.setAOutput = function(param1, param2, callback) {
-		
-		SetOutput (false, param1, param2, callback);
+		if (groomyConnected)
+		{		
+			SetOutput ({analog:true}, param1, param2, callback);
+			readGroomy(); // check if connected
+		}
 		return true;
 	};
 	
+	//-----------------------------------------------------------
+	//--
+	//--		Set Relay Output
+	//--
+	//-----------------------------------------------------------
+	ext.setROutput = function(param1,  param2, callback) {
+		if (groomyConnected)
+		{		
+			SetOutput ({relay:true}, param1, param2, callback);
+			readGroomy(); // check if connected
+		}        
+		return true;
+	}
+
+	ext.whenConnected = function() {
+		if (groomyConnected) 
+			return true;
+		return false;
+	};	
+	
+	
     // Block and block menu descriptions
-    var descriptor = {
+   var descriptor = {
         blocks: [
             // Block type, block name, function name
-			['w', 'set address %s.%s.%s.%s', 'initGroomy', '10', '0', '2', '221'],
+			['w', 'Configurer addresse IP groomy %s.%s.%s.%s', 'initGroomy', '10', '0', '2', '221'],
+			['-'],['-'],
+			['h', 'Quand la grommy est connectée',  	'whenConnected',  1 ],
+			['-'],
 			//--
 			['r', 'Lire entrée numérique %m.DigitalNumber',  	'readDInput',  1 ],
 			['r', 'Lire entrée analogique %m.AnalogNumber4',   	'readAInput',  1 ],
 			['r', 'Lire sortie numérique %m.DigitalNumber',  	'readDOutput', 1 ],
 			['r', 'Lire sortie analogique %m.AnalogNumber2',   	'readAOutput', 1 ],
+			['r', 'Lire relai %m.AnalogNumber2',   				'readROutput', 1 ],
 			//--
+			['-'],
 			['w', 'Affecter sortie numérique %m.DigitalNumber à %m.DigitalValues', 'setDOutput', 1, 0],
 			['w', 'Affecter sortie analogique %m.AnalogNumber2 à %s', 'setAOutput', 1, '  0'],		
+			['w', 'Affecter relai %m.AnalogNumber4 à %m.DigitalValues', 'setROutput', 1, '0'],		
 		],
 		menus: {
 			DigitalNumber	: [1, 2, 3, 4, 5, 6, 7, 8],
@@ -487,5 +546,5 @@ $ip = "10.0.2.221";//
 
     // Register the extension
     ScratchExtensions.register('Groomy extension', descriptor, ext);
-	
+	console.log('Groomy extension');
 }) ({});
