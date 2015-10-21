@@ -529,7 +529,7 @@ $ip = "10.0.2.221";//
 			['r', 'Lire entrée analogique %m.AnalogNumber4',   	'readAInput',  1 ],
 			['r', 'Lire sortie numérique %m.DigitalNumber',  	'readDOutput', 1 ],
 			['r', 'Lire sortie analogique %m.AnalogNumber2',   	'readAOutput', 1 ],
-			['r', 'Lire relai %m.AnalogNumber2',   				'readROutput', 1 ],
+			['r', 'Lire relai %m.AnalogNumber4',   				'readROutput', 1 ],
 			//--
 			['-'],
 			['w', 'Affecter sortie numérique %m.DigitalNumber à %m.DigitalValues', 'setDOutput', 1, 0],
