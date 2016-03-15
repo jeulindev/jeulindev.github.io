@@ -520,21 +520,21 @@ $ip = "10.0.2.221";//
    var descriptor = {
         blocks: [
             // Block type, block name, function name
-			['w', 'Configurer addresse IP groomy %s.%s.%s.%s', 'initGroomy', '10', '0', '2', '221'],
+			['w', 'Configurer adresse IP groomy %s.%s.%s.%s', 'initGroomy', '10', '0', '2', '221'],
 			['-'],['-'],
-			['h', 'Quand la grommy est connectée',  	'whenConnected',  1 ],
+			['h', 'Quand la groomy est connectée',  	'whenConnected',  1 ],
 			['-'],
 			//--
 			['r', 'Lire entrée numérique %m.DigitalNumber',  	'readDInput',  1 ],
 			['r', 'Lire entrée analogique %m.AnalogNumber4',   	'readAInput',  1 ],
 			['r', 'Lire sortie numérique %m.DigitalNumber',  	'readDOutput', 1 ],
 			['r', 'Lire sortie analogique %m.AnalogNumber2',   	'readAOutput', 1 ],
-			['r', 'Lire relai %m.AnalogNumber4',   				'readROutput', 1 ],
+			['r', 'Lire relais %m.AnalogNumber4',   				'readROutput', 1 ],
 			//--
 			['-'],
 			['w', 'Affecter sortie numérique %m.DigitalNumber à %m.DigitalValues', 'setDOutput', 1, 0],
 			['w', 'Affecter sortie analogique %m.AnalogNumber2 à %s', 'setAOutput', 1, '  0'],		
-			['w', 'Affecter relai %m.AnalogNumber4 à %m.DigitalValues', 'setROutput', 1, '0'],		
+			['w', 'Affecter relais %m.AnalogNumber4 à %m.DigitalValues', 'setROutput', 1, '0'],		
 		],
 		menus: {
 			DigitalNumber	: [1, 2, 3, 4, 5, 6, 7, 8],
