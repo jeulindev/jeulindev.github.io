@@ -633,16 +633,20 @@ $ip = "10.0.2.221";//
 		docEL = document.getElementsByTagName('head')[0].appendChild(that.script);
 		
  		window.setTimeout(function() { 
-			if (myReq.waiting == 2)
+			if (myReq!=undefined)
 			{
-				myReq.loaded 	= true;
-				myReq.waiting  	= 0;
-				document.getElementsByTagName('head')[0].removeChild(docEL);
-				
-				//d = new Date();; console.log("clear2 :"+d.getHours()+":"+d.getMinutes()+":"+d.getSeconds()+":"+d.getMilliseconds());
-			} else {
-				that.waiting = 0;
+				if (myReq.waiting == 2)
+				{
+					myReq.loaded 	= true;
+					myReq.waiting  	= 0;
+					document.getElementsByTagName('head')[0].removeChild(docEL);
+					
+					//d = new Date();; console.log("clear2 :"+d.getHours()+":"+d.getMinutes()+":"+d.getSeconds()+":"+d.getMilliseconds());
+				} else {
+					that.waiting = 0;
+				}				
 			}
+
 
 			
 		}, waitingTimeRead);
