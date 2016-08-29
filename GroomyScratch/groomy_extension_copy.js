@@ -1036,6 +1036,16 @@ $ip = "10.0.2.221";//
 	//--
 	//-----------------------------------------------------------	
 	ext.setDOutput = function(param1, param2, callback) {
+		console.log('setDOutput');
+		if (groomyConnected)
+		{
+			SetOutput ({digital:true}, param1, param2, callback);
+			this.readGroomy(); // check if connected
+		}
+		return true;
+	};
+	ext.setDOutput2 = function(param1, param2, callback) {
+		console.log('setDOutput2 '+param1+':'+param2);
 		if (groomyConnected)
 		{
 			SetOutput ({digital:true}, param1, param2, callback);
@@ -1095,7 +1105,7 @@ $ip = "10.0.2.221";//
 			//--
 			['-'],
 			['w', 'Affecter sortie numérique %m.DigitalNumber à %m.DigitalValues', 'setDOutput', 1, 0],
-			['w', 'Affecter sortie numérique %m.DigitalNumber à %s', 'setAOutput', 1, '  0'],	
+			['w', 'Affecter sortie numérique %m.DigitalNumber à %s', 'setDOutput2', 1, '  0'],	
 			['w', 'Affecter sortie analogique %m.AnalogNumber2 à %s', 'setAOutput', 1, '  0'],		
 			['w', 'Affecter relai %m.AnalogNumber4 à %m.DigitalValues', 'setROutput', 1, '  0'],		
 		],
