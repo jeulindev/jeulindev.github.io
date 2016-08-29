@@ -475,7 +475,7 @@ $ip = "10.0.2.221";//
 	ext.setDOutput = function(param1, param2, callback) {
 		if (groomyConnected)
 		{
-			SetOutput ({digital:true}, param1, param2, callback);
+			SetOutput ({digital:true}, param1, parseInt(param2), callback);
 			this.readGroomy(); // check if connected
 		}
 		return true;
@@ -497,7 +497,7 @@ $ip = "10.0.2.221";//
 	ext.setAOutput = function(param1, param2, callback) {
 		if (groomyConnected)
 		{		
-			SetOutput ({analog:true}, param1, param2, callback);
+			SetOutput ({analog:true}, param1, parseInt(param2), callback);
 			readGroomy(); // check if connected
 		}
 		return true;
