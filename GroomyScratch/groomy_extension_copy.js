@@ -533,6 +533,7 @@ $ip = "10.0.2.221";//
 	}
 
 	ext.whenConnected = function() {
+		console.log("check groomy IP:"+$ip);
 		if (groomyConnected) 
 			return true;
 		return false;
