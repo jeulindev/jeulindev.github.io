@@ -337,6 +337,7 @@ function SetOutput(options, number, value, callback)
 				
 			//-- send cmd
 			$cmd = "http://"+$ip+"/etat.htm?"+output.type+output.value;
+			console.log($cmd);
 			jIframe.attr('src', $cmd );	
 
 			//console.log($cmd);
@@ -481,7 +482,7 @@ $ip = "10.0.2.221";//
 		return true;
 	};
 	ext.setDOutput2 = function(param1, param2, callback) {
-		console.log('setDOutput2('+param1+'):'+param2 );
+		//console.log('setDOutput2('+param1+'):'+param2 );
 		if (groomyConnected)
 		{
 			SetOutput ({digital:true}, param1, param2, callback);
