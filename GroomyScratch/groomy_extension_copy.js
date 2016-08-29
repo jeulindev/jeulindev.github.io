@@ -1087,7 +1087,7 @@ $ip = "10.0.2.221";//
 		return false;
 	};	
 	
-	
+	//pourquoi
     // Block and block menu descriptions
     var descriptor = {
         blocks: [
