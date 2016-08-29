@@ -337,7 +337,6 @@ function SetOutput(options, number, value, callback)
 				
 			//-- send cmd
 			$cmd = "http://"+$ip+"/etat.htm?"+output.type+output.value;
-			console.log($cmd);
 			jIframe.attr('src', $cmd );	
 
 			//console.log($cmd);
@@ -485,7 +484,7 @@ $ip = "10.0.2.221";//
 		//console.log('setDOutput2('+param1+'):'+param2 );
 		if (groomyConnected)
 		{
-			SetOutput ({digital:true}, param1, param2, callback);
+			SetOutput ({digital:true}, param1, (parseInt(param2)==0)? 0: 1, callback);
 			this.readGroomy(); // check if connected
 		}
 		return true;
