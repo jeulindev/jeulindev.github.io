@@ -550,7 +550,7 @@ $ip = "10.0.2.221";//
 			//--
 			['-'],
 			['w', 'Affecter sortie numérique %m.DigitalNumber à %m.DigitalValues', 'setDOutput', 1, 0],
-			['w', 'Affecter sortie numérique %m.DigitalNumber à %s', 'setDOutput', 1, 0],
+			['w', 'Affecter sortie numérique %m.DigitalNumber à %s', 'setDOutput', 1,  '  0'],
 			['w', 'Affecter sortie analogique %m.AnalogNumber2 à %s', 'setAOutput', 1, '  0'],		
 			['w', 'Affecter relais %m.AnalogNumber4 à %m.DigitalValues', 'setROutput', 1, '0'],		
 		],
@@ -1088,6 +1088,7 @@ $ip = "10.0.2.221";//
 			//--
 			['-'],
 			['w', 'Affecter sortie numérique %m.DigitalNumber à %m.DigitalValues', 'setDOutput', 1, 0],
+			['w', 'Affecter sortie numérique %m.DigitalNumber à %s', 'setAOutput', 1, '  0'],	
 			['w', 'Affecter sortie analogique %m.AnalogNumber2 à %s', 'setAOutput', 1, '  0'],		
 			['w', 'Affecter relai %m.AnalogNumber4 à %m.DigitalValues', 'setROutput', 1, '  0'],		
 		],
