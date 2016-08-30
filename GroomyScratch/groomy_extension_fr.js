@@ -349,9 +349,10 @@ function SetOutput(options, number, value, callback)
 		} else {
 			//callback();
 			console.log('wait command');
-			writeT = window.setTimeout(function() {
-				SetOutput(da, number, value, callback);
-			}, waitingTimeWrite, da, number, value, callback);
+			writeT = window.setTimeout(function(options, number, value, callback) {
+				//console.log(options, number, value, callback);
+				SetOutput(options, number, value, callback);
+			}, waitingTimeWrite, options, number, value, callback);
 		}
 	}
 }
@@ -543,10 +544,8 @@ $ip = "10.0.2.221";//
 			//--
 			['r', 'Lire entrée numérique %m.DigitalNumber',  	'readDInput',  1 ],
 			['r', 'Lire entrée analogique %m.AnalogNumber4',   	'readAInput',  1 ],
-			['-'],
 			['r', 'Lire sortie numérique %m.DigitalNumber',  	'readDOutput', 1 ],
 			['r', 'Lire sortie analogique %m.AnalogNumber2',   	'readAOutput', 1 ],
-			['-'],
 			['r', 'Lire relais %m.AnalogNumber4',   				'readROutput', 1 ],
 			//--
 			['-'],['-'],
@@ -554,8 +553,8 @@ $ip = "10.0.2.221";//
 			['w', 'Affecter %s à sortie numérique %m.DigitalNumber', 'setDOutput2', '  0', 1],
 			['-'],
 			['w', 'Affecter %s à sortie analogique %m.AnalogNumber2', 'setAOutput', '  0', 1],		
-			['-'],
 			['w', 'Affecter %m.DigitalValues à relais %m.AnalogNumber4 ', 'setROutput', 0, 1 ],		
+			['-'],
 			['w', 'Affecter %s à relais %m.AnalogNumber4 ', 'setROutput2', '  0', 1 ],		
 		],
 		menus: {

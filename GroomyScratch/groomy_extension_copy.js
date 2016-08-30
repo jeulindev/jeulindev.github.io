@@ -350,7 +350,7 @@ function SetOutput(options, number, value, callback)
 			//callback();
 			console.log('wait command');
 			writeT = window.setTimeout(function(options, number, value, callback) {
-				console.log(options, number, value, callback);
+				//console.log(options, number, value, callback);
 				SetOutput(options, number, value, callback);
 			}, waitingTimeWrite, options, number, value, callback);
 		}
