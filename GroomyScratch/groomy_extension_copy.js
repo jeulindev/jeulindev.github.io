@@ -349,9 +349,10 @@ function SetOutput(options, number, value, callback)
 		} else {
 			//callback();
 			console.log('wait command');
-			writeT = window.setTimeout(function() {
-				SetOutput(da, number, value, callback);
-			}, waitingTimeWrite, da, number, value, callback);
+			writeT = window.setTimeout(function(options, number, value, callback) {
+				console.log(options, number, value, callback);
+				SetOutput(options, number, value, callback);
+			}, waitingTimeWrite, options, number, value, callback);
 		}
 	}
 }
