@@ -543,8 +543,10 @@ $ip = "10.0.2.221";//
 			//--
 			['r', 'Lire entrée numérique %m.DigitalNumber',  	'readDInput',  1 ],
 			['r', 'Lire entrée analogique %m.AnalogNumber4',   	'readAInput',  1 ],
+			['-'],
 			['r', 'Lire sortie numérique %m.DigitalNumber',  	'readDOutput', 1 ],
 			['r', 'Lire sortie analogique %m.AnalogNumber2',   	'readAOutput', 1 ],
+			['-'],
 			['r', 'Lire relais %m.AnalogNumber4',   				'readROutput', 1 ],
 			//--
 			['-'],['-'],
