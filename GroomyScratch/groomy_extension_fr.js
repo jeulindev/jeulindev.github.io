@@ -552,8 +552,8 @@ $ip = "10.0.2.221";//
 			['w', 'Affecter %s à sortie numérique %m.DigitalNumber', 'setDOutput2', '  0', 1],
 			['-'],
 			['w', 'Affecter %s à sortie analogique %m.AnalogNumber2', 'setAOutput', '  0', 1],		
-			['w', 'Affecter %m.DigitalValues à relais %m.AnalogNumber4 ', 'setROutput', 0, 1 ],		
 			['-'],
+			['w', 'Affecter %m.DigitalValues à relais %m.AnalogNumber4 ', 'setROutput', 0, 1 ],		
 			['w', 'Affecter %s à relais %m.AnalogNumber4 ', 'setROutput2', '  0', 1 ],		
 		],
 		menus: {
