@@ -475,7 +475,7 @@ $ip = "10.0.2.221";//
 	ext.setDOutput = function(param1, param2, callback) {
 		if (groomyConnected)
 		{
-			SetOutput ({digital:true}, param1, parseInt(param2), callback);
+			SetOutput ({digital:true}, param2, parseInt(param1), callback);
 			this.readGroomy(); // check if connected
 		}
 		return true;
@@ -484,7 +484,7 @@ $ip = "10.0.2.221";//
 		//console.log('setDOutput2('+param1+'):'+param2 );
 		if (groomyConnected)
 		{
-			SetOutput ({digital:true}, param1, (parseInt(param2)==0)? 0: 1, callback);
+			SetOutput ({digital:true}, param2, (parseInt(param1)==0)? 0: 1, callback);
 			this.readGroomy(); // check if connected
 		}
 		return true;
@@ -497,7 +497,7 @@ $ip = "10.0.2.221";//
 	ext.setAOutput = function(param1, param2, callback) {
 		if (groomyConnected)
 		{		
-			SetOutput ({analog:true}, param1, parseInt(param2), callback);
+			SetOutput ({analog:true}, param2, parseInt(param1), callback);
 			readGroomy(); // check if connected
 		}
 		return true;
@@ -511,7 +511,15 @@ $ip = "10.0.2.221";//
 	ext.setROutput = function(param1,  param2, callback) {
 		if (groomyConnected)
 		{		
-			SetOutput ({relay:true}, param1, param2, callback);
+			SetOutput ({relay:true}, param2, parseInt(param1), callback);
+			readGroomy(); // check if connected
+		}        
+		return true;
+	}
+	ext.setROutput2 = function(param1,  param2, callback) {
+		if (groomyConnected)
+		{		
+			SetOutput ({relay:true}, param2, (parseInt(param1)==0)? 0: 1, callback);
 			readGroomy(); // check if connected
 		}        
 		return true;
@@ -540,10 +548,11 @@ $ip = "10.0.2.221";//
 			['r', 'Lire relais %m.AnalogNumber4',   				'readROutput', 1 ],
 			//--
 			['-'],
-			['w', 'Affecter sortie numérique %m.DigitalNumber à %m.DigitalValues', 'setDOutput', 1, 0],
-			['w', 'Affecter sortie numérique %m.DigitalNumber à %s', 'setDOutput2', 1, '  0'],
-			['w', 'Affecter sortie analogique %m.AnalogNumber2 à %s', 'setAOutput', 1, '  0'],		
-			['w', 'Affecter relais %m.AnalogNumber4 à %m.DigitalValues', 'setROutput', 1, '0'],		
+			['w', 'Affecter %m.DigitalValues à sortie numérique %m.DigitalNumber', 'setDOutput', 0, 1],
+			['w', 'Affecter %m.DigitalNumber à sortie numérique %m.DigitalNumber', 'setDOutput2', '  0', 1],
+			['w', 'Affecter %s à sortie analogique %m.AnalogNumber2', 'setAOutput', '  0', 1],		
+			['w', 'Affecter %m.DigitalValues à relais %m.AnalogNumber4 ', 'setROutput', 0, 1 ],		
+			['w', 'Affecter %s à relais %m.AnalogNumber4 ', 'setROutput2', '0', 1 ],		
 		],
 		menus: {
 			DigitalNumber	: [1, 2, 3, 4, 5, 6, 7, 8],
